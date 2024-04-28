@@ -1,7 +1,7 @@
 # hello-python
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/cvisinoni/hello-python/blob/master/LICENSE)
 
-Hello Python is a simple Python project to get you started!
+Hello-Python is a simple Python project to get you started.
 
 ## Description
 
@@ -23,9 +23,10 @@ Feel free to modify and expand upon these files to fit your project's needs.
 To get started with Hello-Python, follow these steps:
 
 1. Clone this repository to your local machine using\
-   `git clone https://github.com/your-username/hello-python.git`
-2. Navigate to the project directory: `cd hello-python`.
-3. Rename `hello` directory and start coding!
+   `git clone https://github.com/cvisinoni/hello-python.git`
+2. Navigate to the project directory: `cd hello-python`
+3. Run `fork.py` passing the parameter `name` 
+4. Navigate to the new project `cd ../[new name]` and start coding
 
 ## Contributing
 

@@ -1,16 +1,17 @@
+from .config import properties
 from pathlib import Path
-from os import getenv
 import logging.handlers
 import logging.config
 
 
 # Properties
-level = logging.INFO
+level = properties.get('logging.level', logging.DEBUG)
+file = properties.get('logging.file')
 
 
 # Formatter
 # https://docs.python.org/3/library/logging.html#logging.basicConfig
-formatter = logging.Formatter('%(asctime)s - %(module)12s:%(lineno)3d - %(levelname)8s - %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(filename)16s:%(lineno)4d - %(levelname)8s: %(message)s')
 
 
 # Namer
@@ -19,37 +20,38 @@ def namer(default_name):
     return f"{base_filename}.{date}.{ext}"
 
 
-# Console handler
-def get_console_handler(level=logging.DEBUG):
+def get_logger(name):
+    # Logger
+    log = logging.getLogger(name)
+    log.setLevel(level)
+
+    # Console handler
     ch = logging.StreamHandler()
     ch.setLevel(level)
     ch.setFormatter(formatter)
-    return ch
+    log.addHandler(ch)
+
+    # File handler
+    # https://docs.python.org/3/library/logging.handlers.html#timedrotatingfilehandler
+    if file is not None:
+        Path(file).parent.mkdir(parents=True, exist_ok=True)
+        properties = dict(
+            when='midnight',
+            interval=1,
+            backupCount=100,
+            encoding='utf-8',
+            delay=False,
+            utc=False,
+            atTime=None,
+            errors=None
+        )
+        fh = logging.handlers.TimedRotatingFileHandler(file, **properties)
+        fh.namer = namer
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        log.addHandler(fh)
+
+    return log
 
 
-# File handler
-def get_file_handler(level=logging.DEBUG):
-    filename = 'logs/console.log'
-    Path(filename).parent.mkdir(parents=True, exist_ok=True)
-    properties = dict(
-        when='S',
-        interval=1,
-        backupCount=10,
-        encoding='utf-8',
-        delay=False,
-        utc=False,
-        atTime=None,
-        errors=None
-    )
-    fh = logging.handlers.TimedRotatingFileHandler('logs/console.log', **properties)
-    fh.namer = namer
-    fh.setLevel(level)
-    fh.setFormatter(formatter)
-    return fh
-
-
-# Logger
-log = logging.getLogger(__package__)
-log.addHandler(get_console_handler())
-log.addHandler(get_file_handler())
-log.setLevel(getenv('LOG_LEVEL', level))
+log = get_logger(__package__)
