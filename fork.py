@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 
 def replace(content: bytes, name: str):
@@ -12,8 +13,9 @@ def replace(content: bytes, name: str):
     return content
 
 
-def fork(name):
-    project_path = Path('..') / name
+def fork(dest):
+    project_path = Path(dest)
+    name = project_path.name
     project_path.mkdir()
     files = [
         'hello/__init__.py',
@@ -37,4 +39,5 @@ def fork(name):
 
 
 if __name__ == '__main__':
-    fork('newname')
+    newname = sys.argv[1]
+    fork(newname)
