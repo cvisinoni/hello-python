@@ -2,6 +2,7 @@ from .config import properties
 from pathlib import Path
 import logging.handlers
 import logging.config
+import re
 
 
 # Properties
@@ -16,8 +17,9 @@ formatter = logging.Formatter('%(asctime)s - %(filename)16s:%(lineno)4d - %(leve
 
 # Namer
 def namer(default_name):
-    base_filename, ext, date = default_name.split(".")
-    return f"{base_filename}.{date}.{ext}"
+    if m := re.match(r'(.+)\.([^.]+)\.([-_0-9]+)', default_name):
+        default_name = f'{m.group(1)}.{m.group(3)}.{m.group(2)}'
+    return default_name
 
 
 def get_logger(name):
@@ -40,7 +42,7 @@ def get_logger(name):
             interval=1,
             backupCount=100,
             encoding='utf-8',
-            delay=False,
+            delay=True,
             utc=False,
             atTime=None,
             errors=None
