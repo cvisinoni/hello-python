@@ -14,28 +14,29 @@ def replace(content: bytes, name: str):
 
 
 def fork(dest):
-    project_path = Path(dest)
-    name = project_path.name
-    project_path.mkdir()
-    files = [
-        'hello/__init__.py',
-        'hello/config.py',
-        'hello/logger.py',
-        '.gitignore',
-        'LICENSE',
-        'local.ini',
-        'main.py',
-        'README.md',
-        'requirements.txt'
-    ]
-
-    for file in files:
-        src = Path(file)
-        dst = project_path / replace(file.encode('utf-8'), name).decode('utf-8')
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        content = src.read_bytes()
-        content = replace(content, name)
-        dst.write_bytes(content)
+    root = Path(dest)
+    if not root.exists():
+        name = root.name
+        files = list()
+        for relative_path in [
+            'hello/__init__.py',
+            'hello/config.py',
+            'hello/logger.py',
+            '.gitignore',
+            'LICENSE',
+            'local.ini',
+            'main.py',
+            'README.md',
+            'requirements.txt'
+        ]:
+            src = Path(__file__).parent / relative_path
+            dst = root / replace(relative_path.encode('utf-8'), name).decode('utf-8')
+            files.append((dst, replace(src.read_bytes(), name)))
+        for dst, content in files:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_bytes(content)
+    else:
+        raise FileExistsError(f'{dest} already exists')
 
 
 if __name__ == '__main__':
