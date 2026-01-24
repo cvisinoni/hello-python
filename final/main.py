@@ -1,4 +1,4 @@
-from hello.logger import log
+from hello.logger_file import log
 from hello.config import properties
 
 

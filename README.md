@@ -9,8 +9,8 @@ A basic Python project template that provides you with the essential
 files and structure to kickstart your Python project development.
 It includes:
 
-- `main.py`: This is the main Python file where you can write your code.
-- `README.md`: You are currently reading this file! It contains information about the project.
+- `main.py` or `example.py`: The main entry point of your Python application or an example script.
+- `README.md`: It contains information about the project.
 - `requirements.txt`: This file lists all the Python dependencies required for your project. 
    You can install them using `pip install -r requirements.txt`.
 - `.gitignore`: This file tells Git which files to ignore when committing changes to your repository.
@@ -25,15 +25,18 @@ To get started with Hello-Python, follow these steps:
 1. Clone this repository to your local machine using\
    `git clone https://github.com/cvisinoni/hello-python.git`
 2. Navigate to the project directory: `cd hello-python`
-3. Run `fork.py` passing the parameter `name` 
-4. Navigate to the new project `cd ../[new name]` and start coding
+3. Run `python3 fork.py`
+4. Provide the model of your new project when prompted. Choose from:\
+   - `final` - A basic Python project structure
+   - `library` - A Python library structure
+5. Provide a destination path for your new project when prompted
+6. Navigate to the new project `cd ../[new name]` and start coding
 
 ## Contributing
 
 If you'd like to contribute to Hello-Python, feel free to fork this repository, 
-make your changes, and submit a pull request. 
-We welcome contributions of all kinds, whether it's fixing a bug, 
-adding a new feature, or improving documentation.
+make your changes, and submit a pull request. We welcome contributions of all kinds, 
+whether it's fixing a bug, adding a new feature, or improving documentation.
 
 ## License
 

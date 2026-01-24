@@ -1,10 +1,9 @@
 from configparser import ConfigParser
 from pathlib import Path
-from os import getenv
 
 
 def get_properties():
-    file = Path(getenv('CONFIG_FILE', 'local.ini'))
+    file = Path('local.ini')
 
     class Properties(dict):
 
@@ -30,7 +29,7 @@ def get_properties():
                 if words[0] == 'root':
                     words.pop(0)
                 obj = properties
-                for i, word in enumerate(words[:-1]):
+                for word in words[:-1]:
                     obj = obj.setdefault(word, Properties())
                 obj[words[-1]] = config.get(section, option)
 
