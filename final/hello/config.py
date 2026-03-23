@@ -2,8 +2,27 @@ from configparser import ConfigParser
 from pathlib import Path
 
 
+_project = __package__
+
+
+def get_config_directories():
+    result = []
+    for parent in Path(__file__).parents:
+        if (f := parent / '.config.txt').is_file():
+            result.append(Path(f.read_text()) / _project)
+    return [Path('.')] + result
+
+
+def get_config_file():
+    for directory in get_config_directories():
+        for filename in (f'{_project}.ini', 'local.ini', 'application.properties'):
+            file = directory / filename
+            if file.is_file():
+                return file
+    return None
+
+
 def get_properties():
-    file = Path('local.ini')
 
     class Properties(dict):
 
@@ -18,9 +37,11 @@ def get_properties():
             except AttributeError:
                 return self.get(item)
 
+    file = get_config_file()
+
     properties = Properties()
 
-    if file.is_file():
+    if file:
         config = ConfigParser()
         config.read(file)
         for section in config.sections():
