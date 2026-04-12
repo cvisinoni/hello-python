@@ -1,25 +1,10 @@
 from configparser import ConfigParser
 from pathlib import Path
+from os import getenv
 
 
-_project = __package__
-
-
-def get_config_directories():
-    result = []
-    for parent in Path(__file__).parents:
-        if (f := parent / '.config.txt').is_file():
-            result.append(Path(f.read_text()) / _project)
-    return [Path('.')] + result
-
-
-def get_config_file():
-    for directory in get_config_directories():
-        for filename in (f'{_project}.ini', 'local.ini', 'application.properties'):
-            file = directory / filename
-            if file.is_file():
-                return file
-    return None
+_config_directories = getenv('CONFIG_PATH').split(';')
+_config_file = 'hello/hello.ini'
 
 
 def get_properties():
@@ -37,22 +22,22 @@ def get_properties():
             except AttributeError:
                 return self.get(item)
 
-    file = get_config_file()
-
     properties = Properties()
 
-    if file:
-        config = ConfigParser()
-        config.read(file)
-        for section in config.sections():
-            for option in config.options(section):
-                words = [section.lower()] + option.split('.')
-                if words[0] == 'root':
-                    words.pop(0)
-                obj = properties
-                for word in words[:-1]:
-                    obj = obj.setdefault(word, Properties())
-                obj[words[-1]] = config.get(section, option)
+    for directory in _config_directories:
+        file = Path(directory).expanduser() / _config_file
+        if file.is_file():
+            config = ConfigParser()
+            config.read(file)
+            for section in config.sections():
+                for option in config.options(section):
+                    words = [section.lower()] + option.split('.')
+                    if words[0] == 'root':
+                        words.pop(0)
+                    obj = properties
+                    for word in words[:-1]:
+                        obj = obj.setdefault(word, Properties())
+                    obj[words[-1]] = config.get(section, option)
 
     return properties
 
