@@ -1,5 +1,5 @@
 # hello-python
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/cvisinoni/hello-python/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/$OWNER/hello-python/blob/master/LICENSE)
 
 Hello-Python is ...
 
@@ -29,5 +29,5 @@ This project is MIT licensed. See the [LICENSE](LICENSE) file for details.
 ## Support
 
 If you have any questions, issues, or suggestions regarding Hello-Python, 
-please [open an issue](https://github.com/cvisinoni/hello-python/issues) on GitHub.
+please [open an issue](https://github.com/$OWNER/hello-python/issues) on GitHub.
 We'd love to hear from you!

@@ -73,7 +73,10 @@ tmp/
 Thumbs.db
 
 # Local
+application.properties
 local.properties
 local.ini
 local.json
+local.yaml
+local.toml
 .env

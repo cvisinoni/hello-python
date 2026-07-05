@@ -1,15 +1,10 @@
-from hello.logger_file import log
-from hello.config import properties
+from hello.logger import log
 
 
 if __name__ == '__main__':
 
-    log.info('start')
-
     try:
-        log.debug('where we are going we don\'t need roads')
-        a = properties.a.b.c.d
+        log.info('where we are going we don\'t need roads')
+        a = 1 / 1
     except Exception as e:
-        log.error(e)
-
-    log.info('end')
+        log.error("%s", e, exc_info=True)
