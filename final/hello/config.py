@@ -10,7 +10,7 @@ import logging
 
 # Application info
 __info__: dict[str, Any] = dict(
-    name="hello",
+    name="hello-python",
     version="0.1.0"
 )
 
