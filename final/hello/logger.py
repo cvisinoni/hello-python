@@ -58,6 +58,7 @@ def setup_logger(name: str = None, *, level: str | int = logging.INFO, file: Pat
     return log
 
 
+# Get parameters from config and setup logger
 _name = __info__.get('name', __package__)
 _version = __info__.get('version', '0.0.0')
 _level = config.getstr('logging.level', 'DEBUG')
@@ -65,6 +66,7 @@ _file = config.getstr('logging.file')
 log = setup_logger(_name, level=_level, file=_file)
 
 
+# Log startup messages
 log.debug(f"Starting {_name} V.{_version}")
 log.debug(f"logging level set to {_level}")
 for file in __info__.get('config_files', []):
