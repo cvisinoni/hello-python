@@ -64,7 +64,7 @@ def fork(model, dst, owner):
                 dst_file = dst / rel_path
                 dst_file.parent.mkdir(parents=True, exist_ok=True)
                 dst_file.write_bytes(replace(src_file.read_bytes(), name, owner))
-    print(f'Project {model} forked to {dst.absolute()}')
+    print(f'Project {model} forked to {dst.resolve().absolute()}')
 
 
 if __name__ == '__main__':
