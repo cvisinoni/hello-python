@@ -1,0 +1,20 @@
+{
+  "admin": {
+    "username": "admin",
+    "password": "ce0a2b1fafd65246aac6de62c45224ab0b63746f9b9b564a3f7324499291ed92eebd0ea064ebda0ae7dbc85661be52a6a5cc44195cf635dbc44bfedd2152797b",
+    "salt": "da7efb40c54dc8861f4fe919bac300c3",
+    "role": "admin"
+  },
+  "writer": {
+    "username": "writer",
+    "password": "619d867902dc9ee91cb0957d64401dccbd1591ebd3110ad36e2b9a8672124c12427a740b064170efc3350aaf7283cb38ac43761f2bd71949e37e246d0515f67f",
+    "salt": "18e1486b131aee66394ecbedc1d3dc13",
+    "role": "writer"
+  },
+  "reader": {
+    "username": "reader",
+    "password": "609eaadc06b60769540208387c12498faed7e09fa8399da484103a6d58559e258eece321f2f89d3299e8e6145ca57e9db2bfd11365e1c63e4a0be5c867f6739c",
+    "salt": "3f10f392df163a811e8a4bb2c3d58b13",
+    "role": "reader"
+  }
+}
