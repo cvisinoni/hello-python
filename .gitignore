@@ -77,3 +77,6 @@ local.properties
 local.ini
 local.json
 .env
+
+# Test
+test-hello-python/
