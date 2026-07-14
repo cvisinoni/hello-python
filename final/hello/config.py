@@ -1,27 +1,13 @@
 from pathlib import Path
-from os import getenv
+from os import getenv, pathsep
 from typing import Optional, Any
 from configparser import ConfigParser
 from datetime import datetime
-from functools import reduce
 import tomllib
-import logging
 
 
-# Application info
-__info__: dict[str, Any] = dict(
-    name="hello-python",
-    version="0.1.0"
-)
-
-
-# Config Path and Files
 _config_path = getenv('CONFIG_PATH')
-_config_files = ['hello/hello.ini', 'hello.toml']
-
-
-# Logger
-log = logging.getLogger(__name__)
+_config_file = 'hello/hello.ini'
 
 
 class ConfigNode:
@@ -35,88 +21,92 @@ class ConfigNode:
     def _resolve(self, path: str) -> Any:
         current = self._data
         for key in path.split('.'):
-            if key not in current:
+            if not isinstance(current, dict) or key not in current:
                 return None
             current = current[key]
         return current
 
-    def get(self, path: str) -> Any:
-        value = self._resolve(path)
-        if isinstance(value, dict):
-            return ConfigNode(value)
-        return value
+    def get(self, path: str, default: Any = None) -> Any:
+        if (value := self._resolve(path)) is not None:
+            if isinstance(value, dict):
+                return ConfigNode(value)
+            return value
+        return default
 
-    def getstr(self, path: str, default: Optional[str] = None) -> str:
+    def getstr(self, path: str, default: Optional[str] = None) -> Optional[str]:
         if (result := self._resolve(path)) is not None:
             return str(result)
         return default
 
-    def getint(self, path: str, default: Optional[int] = None) -> int:
+    def getint(self, path: str, default: Optional[int] = None) -> Optional[int]:
         if (result := self._resolve(path)) is not None:
             return int(result)
         return default
 
-    def getfloat(self, path: str, default: Optional[float] = None) -> float:
+    def getfloat(self, path: str, default: Optional[float] = None) -> Optional[float]:
         if (result := self._resolve(path)) is not None:
             return float(result)
         return default
 
-    def getbool(self, path: str, default: Optional[bool] = None) -> bool:
+    def getbool(self, path: str, default: Optional[bool] = None) -> Optional[bool]:
         if (result := self._resolve(path)) is not None:
             if isinstance(result, bool):
                 return result
             return str(result).lower() in ('true', '1', 'yes', 'on')
         return default
 
-    def getdatetime(self, path: str, default: Optional[datetime] = None) -> datetime:
+    def getdatetime(self, path: str, default: Optional[datetime] = None) -> Optional[datetime]:
         if (result := self._resolve(path)) is not None:
             return datetime.fromisoformat(str(result))
         return default
 
-
-def _merge_data(data: dict, values: dict) -> None:
-    for key, value in values.items():
-        key = key.lower()
-        if isinstance(value, dict):
-            _merge_data(data.setdefault(key, {}), value)
-        else:
-            data[key] = str(value)
+    def getpath(self, path: str, default: Optional[Path] = None) -> Optional[Path]:
+        if (result := self._resolve(path)) is not None:
+            return Path(result)
+        return default
 
 
-def load_config_file(file: Path, data: dict) -> Optional[dict]:
-    if not file.is_file():
-        return
+def load_config_file(file: Path) -> dict:
+    data = dict()
     suffix = file.suffix.lower()
-    if suffix == '.ini':
-        parser = ConfigParser()
-        parser.read(file)
+
+    if suffix == ".ini":
+        parser = ConfigParser(interpolation=None)
+        parser.read(file, encoding="utf-8")
         for section in parser.sections():
             for option in parser.options(section):
-                words = [section.lower()] + option.lower().split('.')
-                if words[0] == 'root':
-                    words.pop(0)
-                obj = reduce(lambda d, k: d.setdefault(k, {}), words[:-1], data)
-                obj[words[-1]] = parser.get(section, option)
-    elif suffix == '.toml':
-        with file.open('rb') as f:
+                keys = [section.lower()] + option.split(".")
+                current = data
+                for key in keys[:-1]:
+                    current = current.setdefault(key, dict())
+                current[keys[-1]] = parser.get(section, option)
+
+    elif suffix == ".toml":
+        with file.open("rb") as f:
             content = tomllib.load(f)
-        root_key = next((key for key in content if key.lower() == 'root'), None)
-        if root_key is not None and isinstance(content[root_key], dict):
-            _merge_data(data, content.pop(root_key))
-        _merge_data(data, content)
+        data = {
+            str(key).lower(): value
+            for key, value in content.items()
+        }
+
+    if isinstance(data.get("root"), dict):
+        for key, value in data.pop("root").items():
+            if key in data:
+                raise ValueError(f"Config key '{key}' is defined both in 'root' and in another section")
+            data[key] = value
+
+    return data
 
 
 def load_config() -> ConfigNode:
-    __info__['config_files'] = []
-    data = dict()
-    if _config_path:
-        for directory in f'.;{_config_path}'.split(';'):
-            for config_file in _config_files:
-                file = Path(directory).expanduser() / config_file
-                if file.is_file():
-                    __info__['config_files'].append(str(file))
-                    load_config_file(file, data)
-    return ConfigNode(data or dict())
+    directories = ['.'] + (_config_path.split(pathsep) if _config_path else [])
+    for directory in directories:
+        file = Path(directory).expanduser() / _config_file
+        if file.is_file():
+            data = load_config_file(file)
+            data['_loaded_config_file'] = str(file.resolve())
+            return ConfigNode(data)
+    return ConfigNode({})
 
 
 config = load_config()
