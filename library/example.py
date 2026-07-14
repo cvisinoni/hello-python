@@ -1,5 +1,6 @@
-import hello
+from hello.config import project
+import json
 
 
 if __name__ == '__main__':
-    print(hello)
+    print(json.dumps(project, indent=4))
