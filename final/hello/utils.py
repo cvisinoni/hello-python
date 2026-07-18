@@ -10,5 +10,6 @@ def load_json(file: str | Path, **kwargs) -> Any:
 
 def dump_json(obj: Any, file: str | Path, **kwargs) -> None:
     kwargs.setdefault("indent", 4)
+    kwargs.setdefault("ensure_ascii", False)
     with Path(file).open("w", encoding="utf-8") as fp:
         json.dump(obj, fp, **kwargs)
