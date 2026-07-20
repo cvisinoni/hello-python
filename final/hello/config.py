@@ -26,44 +26,48 @@ class ConfigNode:
             current = current[key]
         return current
 
-    def get(self, path: str, default: Any = None) -> Any:
-        if (value := self._resolve(path)) is not None:
-            if isinstance(value, dict):
-                return ConfigNode(value)
+    def _get_value(self, path: str, default: Any = None, required: bool = False) -> Any:
+        value = self._resolve(path)
+        if value is None:
+            if required:
+                raise KeyError(f"Required configuration key '{path}' is missing")
+            return default
+        return value
+
+    def get(self, path: str, default: Any = None, required: bool = False) -> Any:
+        value = self._get_value(path, default, required)
+        return ConfigNode(value) if isinstance(value, dict) else value
+
+    def getstr(self, path: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+        value = self._get_value(path, default, required)
+        return str(value) if value is not None else None
+
+    def getint(self, path: str, default: Optional[int] = None, required: bool = False) -> Optional[int]:
+        value = self._get_value(path, default, required)
+        return int(value) if value is not None else None
+
+    def getfloat(self, path: str, default: Optional[float] = None, required: bool = False) -> Optional[float]:
+        value = self._get_value(path, default, required)
+        return float(value) if value is not None else None
+
+    def getbool(self, path: str, default: Optional[bool] = None, required: bool = False) -> Optional[bool]:
+        value = self._get_value(path, default, required)
+        if value is None or isinstance(value, bool):
             return value
-        return default
+        normalized_value = str(value).strip().lower()
+        if normalized_value in ('true', '1', 'yes', 'on', 'y'):
+            return True
+        if normalized_value in ('false', '0', 'no', 'off', 'n'):
+            return False
+        raise ValueError(f"Invalid boolean configuration value for '{path}': {value!r}")
 
-    def getstr(self, path: str, default: Optional[str] = None) -> Optional[str]:
-        if (result := self._resolve(path)) is not None:
-            return str(result)
-        return default
+    def getdatetime(self, path: str, default: Optional[datetime] = None, required: bool = False) -> Optional[datetime]:
+        value = self._get_value(path, default, required)
+        return datetime.fromisoformat(str(value)) if value is not None else None
 
-    def getint(self, path: str, default: Optional[int] = None) -> Optional[int]:
-        if (result := self._resolve(path)) is not None:
-            return int(result)
-        return default
-
-    def getfloat(self, path: str, default: Optional[float] = None) -> Optional[float]:
-        if (result := self._resolve(path)) is not None:
-            return float(result)
-        return default
-
-    def getbool(self, path: str, default: Optional[bool] = None) -> Optional[bool]:
-        if (result := self._resolve(path)) is not None:
-            if isinstance(result, bool):
-                return result
-            return str(result).lower() in ('true', '1', 'yes', 'on')
-        return default
-
-    def getdatetime(self, path: str, default: Optional[datetime] = None) -> Optional[datetime]:
-        if (result := self._resolve(path)) is not None:
-            return datetime.fromisoformat(str(result))
-        return default
-
-    def getpath(self, path: str, default: Optional[Path] = None) -> Optional[Path]:
-        if (result := self._resolve(path)) is not None:
-            return Path(result)
-        return default
+    def getpath(self, path: str, default: Optional[Path] = None, required: bool = False) -> Optional[Path]:
+        value = self._get_value(path, default, required)
+        return Path(value) if value is not None else None
 
 
 def load_config_file(file: Path) -> dict:
